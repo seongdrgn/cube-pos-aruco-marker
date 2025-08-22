@@ -2,6 +2,7 @@
 This project uses an Intel RealSense camera and ArUco markers to estimate the 3D position and orientation of a specific object (a cube) and its keypoints in real-time. It calculates the target marker's pose relative to a reference marker, enabling stable tracking regardless of the camera's position.
 
 ## Demo
+![demo](docs/demo.gif)
 
 A demo showing real-time tracking of the cube's center and its keypoints.
 
