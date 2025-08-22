@@ -15,22 +15,18 @@ class realsense_camera:
         self.use_depth = use_depth;
         self.use_color = use_color;
 
-        # depth and color 설정 변수 생성
         pipeline = rs.pipeline()
         config = rs.config()
 
-        # 디바이스 변수 얻기
         pipeline_wrapper = rs.pipeline_wrapper(pipeline);
         self.config = config;
         self.pipeline = pipeline;
         self.pipeline_wrapper = pipeline_wrapper;
 
-        # 디바이스 연결 체크
         if(self.can_connect()):        
             pipeline_profile = config.resolve(pipeline_wrapper);
             device = pipeline_profile.get_device();
 
-            # 디바이스 내 color 또는 depth 모듈 체크
             found_rgb = False
             found_depth = False
             for s in device.sensors:
@@ -39,14 +35,12 @@ class realsense_camera:
                 elif s.get_info(rs.camera_info.name) == 'RGB Camera':
                     found_rgb = True
 
-            # color 또는 depth 모듈이 없다면 비활성화
             if not found_rgb:
                 use_color = False; 
             if not found_depth:
                 use_depth = False;    
        
             
-            # 모듈이 있다면 
             if(self.use_depth):
                 config.enable_stream(rs.stream.depth, width, height, rs.format.z16, fps)
             if(self.use_color):
@@ -87,7 +81,6 @@ class realsense_camera:
             return  self.fps;
     
     def can_connect(self):
-        # config의 유효성 및 카메라의 연결여부 체크용도
         return self.config.can_resolve(self.pipeline_wrapper);
     
     def isOpened(self):
@@ -101,12 +94,10 @@ class realsense_camera:
     
     def read_color_depth(self):
         try:
-            #파이프 라인으로부터 프레임 얻기 (100ms안에)
             frames = self.pipeline.wait_for_frames(100)
             color_frame, depth_frame = None, None;
             color_image, depth_image = None, None;
 
-            #프레임에서 color와 depth 얻기
             if(self.use_color):
                 color_frame = frames.get_color_frame()
             if(self.use_depth):
@@ -114,13 +105,11 @@ class realsense_camera:
                 if(not depth_frame):
                     return False,[None, None]
             
-            #numpy형으로 변환
             if(not color_frame is None):
                 color_image = np.asanyarray(color_frame.get_data())
             if(not depth_frame is None):
                 depth_image = np.asanyarray(depth_frame.get_data())
-            
-            #데이터 반환
+
             return True if((not color_image is None) or (not depth_image is None)) else False,[color_image, depth_image];
     
         except:
@@ -128,18 +117,14 @@ class realsense_camera:
         
     def read(self):
         try:
-            #파이프 라인으로부터 프레임 얻기 (100ms안에)
             frames = self.pipeline.wait_for_frames(100)
             if(self.use_color):
-                #프레임에서 color만 얻기
                 color_frame = frames.get_color_frame();
                 if (not color_frame):
                     return False, None
-                #numpy형으로 변환
                 color_image = np.asanyarray(color_frame.get_data());
             else:
                 color_image = np.zeros((self.height,self.width,3),dtype=np.uint8);
-            #데이터 반환
             return True, color_image;
         except:
             return False,None
